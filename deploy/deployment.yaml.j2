@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: homely-mqtt
+  name: homely-mqtt
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: homely-mqtt
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: homely-mqtt
+      name: homely-mqtt
+      namespace: default
+    spec:
+      containers:
+      - image: "{{ environ('main_image') }}:{{ environ('VERSION') }}"
+        name: homely-mqtt
+        resources:
+          requests:
+            cpu: 150m
+            memory: 64Mi
+        volumeMounts:
+        - mountPath: /tmp
+          name: writable-tmp
+      volumes:
+      - emptyDir: {}
+        name: writable-tmp
