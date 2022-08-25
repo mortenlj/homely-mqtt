@@ -32,7 +32,7 @@ docker:
     BUILD +test
     COPY +build/ibidem ibidem
     COPY +build/.venv .venv
-    ENTRYPOINT ["/code/.venv/bin/homely-mqtt"]
+    CMD ["/code/.venv/bin/python", "-m", "ibidem.homely_mqtt"]
 
     # builtins must be declared
     ARG EARTHLY_GIT_PROJECT_NAME
