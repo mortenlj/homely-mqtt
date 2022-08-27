@@ -54,6 +54,12 @@ jobs:
         with:
           name: manifests
           path: deploy.yaml
+      - name: Save test results for later reporting
+        uses: actions/upload-artifact@v3  # upload test results
+        if: always()
+        with:
+          name: test-results
+          path: xunit.xml
   deploy:
     name: Deploy
     if: github.ref == 'refs/heads/main'

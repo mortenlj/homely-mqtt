@@ -37,3 +37,8 @@ __pycache__
 
 
 .github
+
+deploy.yaml
+secret_contents/
+certs/
+xunit.xml

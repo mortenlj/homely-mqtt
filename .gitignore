@@ -39,3 +39,4 @@ __pycache__
 /deploy.yaml
 /secret_contents/
 /certs/
+/xunit.xml

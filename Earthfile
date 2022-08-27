@@ -23,7 +23,8 @@ test:
     FROM +build
     COPY tests tests
     RUN poetry install ${POETRY_INSTALL_COMMON}
-    RUN poetry run pytest
+    RUN poetry run pytest --junit-xml=xunit.xml
+    SAVE ARTIFACT ./xunit.xml AS LOCAL xunit.xml
 
 docker:
     FROM python:3.10-slim
