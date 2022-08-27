@@ -54,44 +54,44 @@ jobs:
         with:
           name: manifests
           path: deploy.yaml
-#  deploy:
-#    name: Deploy
-#    if: github.ref == 'refs/heads/main'
-#    runs-on: ubuntu-latest
-#    needs:
-#      - setup
-#      - build
-#    steps:
-#      - name: Download manifests from build
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: manifests
-#      - name: Install kubectl
-#        uses: azure/setup-kubectl@v3
-#        id: install
-#      - name: Configure kubectl
-#        run: |
-#          KUBECONFIG=$(mktemp --suffix kubeconfig)
-#          echo "${{ secrets.KUBECONFIG }}" > "${KUBECONFIG}"
-#          echo "KUBECONFIG=${KUBECONFIG}" >> ${GITHUB_ENV}
-#      - id: join-zt
-#        name: Join ZeroTier network
-#        uses: mortenlj/zerotier-actions/join-zt@main
-#        with:
-#          network_id: ${{ secrets.ZEROTIER_NETWORK_ID }}
-#          api_accesstoken: ${{ secrets.ZEROTIER_API_ACCESSTOKEN }}
-#      - name: Run kubectl apply
-#        run: |
-#          echo "::group::ZeroTier debugging"
-#          sudo zerotier-cli peers
-#          sudo zerotier-cli listnetworks
-#          ping -c 5 k3s.oci.zt.ibidem.no
-#          echo "::endgroup::"
-#          ${{ steps.install.outputs.kubectl-path}} apply --namespace=default --context=k3s-oci --filename=deploy.yaml --selector=app.kubernetes.io/name=homely-mqtt --prune=true --wait=true --timeout=60s
-#      - name: Leave ZeroTier network
-#        if: always()
-#        uses: mortenlj/zerotier-actions/leave-zt@main
-#        with:
-#          node_id: ${{ steps.join-zt.outputs.node_id }}
-#          network_id: ${{ secrets.ZEROTIER_NETWORK_ID }}
-#          api_accesstoken: ${{ secrets.ZEROTIER_API_ACCESSTOKEN }}
+  deploy:
+    name: Deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs:
+      - setup
+      - build
+    steps:
+      - name: Download manifests from build
+        uses: actions/download-artifact@v3
+        with:
+          name: manifests
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        id: install
+      - name: Configure kubectl
+        run: |
+          KUBECONFIG=$(mktemp --suffix kubeconfig)
+          echo "${{ secrets.KUBECONFIG }}" > "${KUBECONFIG}"
+          echo "KUBECONFIG=${KUBECONFIG}" >> ${GITHUB_ENV}
+      - id: join-zt
+        name: Join ZeroTier network
+        uses: mortenlj/zerotier-actions/join-zt@main
+        with:
+          network_id: ${{ secrets.ZEROTIER_NETWORK_ID }}
+          api_accesstoken: ${{ secrets.ZEROTIER_API_ACCESSTOKEN }}
+      - name: Run kubectl apply
+        run: |
+          echo "::group::ZeroTier debugging"
+          sudo zerotier-cli peers
+          sudo zerotier-cli listnetworks
+          ping -c 5 k3s.oci.zt.ibidem.no
+          echo "::endgroup::"
+          ${{ steps.install.outputs.kubectl-path}} apply --namespace=default --context=k3s-oci --filename=deploy.yaml --selector=app.kubernetes.io/name=homely-mqtt --prune=true --wait=true --timeout=60s
+      - name: Leave ZeroTier network
+        if: always()
+        uses: mortenlj/zerotier-actions/leave-zt@main
+        with:
+          node_id: ${{ steps.join-zt.outputs.node_id }}
+          network_id: ${{ secrets.ZEROTIER_NETWORK_ID }}
+          api_accesstoken: ${{ secrets.ZEROTIER_API_ACCESSTOKEN }}

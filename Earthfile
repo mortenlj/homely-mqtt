@@ -48,12 +48,19 @@ manifests:
     FROM dinutac/jinja2docker:latest
     WORKDIR /manifests
     COPY deploy/* /templates
+
+    # builtins must be declared
+    ARG EARTHLY_GIT_PROJECT_NAME
+    ARG EARTHLY_GIT_SHORT_HASH
+
+    # Override from command-line on CI
     ARG main_image=ghcr.io/$EARTHLY_GIT_PROJECT_NAME
     ARG VERSION=$EARTHLY_GIT_SHORT_HASH
+
     RUN --entrypoint -- /templates/deployment.yaml.j2 /templates/variables.toml --format=toml > ./deploy.yaml
-    RUN cat /templates/*.yaml >> ./deploy.yaml
     SAVE ARTIFACT ./deploy.yaml AS LOCAL deploy.yaml
 
 deploy:
+    BUILD +test
     BUILD --platform=linux/amd64 --platform=linux/arm64 +docker
     BUILD +manifests

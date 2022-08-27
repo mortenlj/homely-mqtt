@@ -28,6 +28,13 @@ spec:
         volumeMounts:
         - mountPath: /tmp
           name: writable-tmp
+        env:
+        - name: HOMELY_MQTT_MODE
+          value: Release
+        - name: HOMELY_MQTT_BIND_ADDRESS
+          value: 0.0.0.0
+        - name: HOMELY_MQTT_PORT
+          value: 3000
       volumes:
       - emptyDir: {}
         name: writable-tmp
