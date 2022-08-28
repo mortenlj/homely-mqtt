@@ -21,6 +21,10 @@ spec:
       containers:
       - image: "{{ environ('main_image') }}:{{ environ('VERSION') }}"
         name: homely-mqtt
+        liveness:
+          path: /_/live
+        readiness:
+          path: /_/ready
         resources:
           requests:
             cpu: 150m

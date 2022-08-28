@@ -7,11 +7,13 @@ import uvicorn
 from fastapi import FastAPI
 from fiaas_logging import init_logging
 
+from ibidem.homely_mqtt import probes
 from ibidem.homely_mqtt.core.config import settings
 
 LOG = logging.getLogger(__name__)
 
 app = FastAPI(title="Homely MQTT bridge")
+app.include_router(probes.router, prefix="/_")
 
 
 class ExitOnSignal(Exception):
