@@ -7,7 +7,7 @@ import uvicorn
 from fastapi import FastAPI
 from fiaas_logging import init_logging
 
-from ibidem.homely_mqtt.core.config import settings
+from ibidem.homely_mqtt.config import settings
 from ibidem.homely_mqtt.probes import router as probe_router
 from ibidem.homely_mqtt.subsystems import manager
 
