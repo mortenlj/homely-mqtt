@@ -40,3 +40,4 @@ __pycache__
 /secret_contents/
 /certs/
 /xunit.xml
+/.env

@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fiaas_logging import init_logging
 
 from ibidem.homely_mqtt.config import settings
+from ibidem.homely_mqtt.homely import Homely
 from ibidem.homely_mqtt.probes import router as probe_router
 from ibidem.homely_mqtt.subsystems import manager
 
@@ -54,7 +55,14 @@ def _init_logging(debug):
 
 
 @app.on_event("startup")
+def init_logging_for_app():
+    _init_logging(settings.debug)
+
+
+@app.on_event("startup")
 def launch_subsystems():
+    LOG.info("Setting up subsystems")
+    manager.register_subsystem("homely", Homely(settings.homely_username, settings.homely_password))
     manager.launch()
 
 
