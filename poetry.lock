@@ -379,7 +379,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "prospector"
-version = "1.8.1"
+version = "1.8.2"
 description = ""
 category = "dev"
 optional = false
@@ -838,7 +838,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "f1a5109c61baec611797937324f03f6ca0a6a52e2e662998aca08503701908c5"
+content-hash = "31717e117bf40cb21fe451d1b684c23f0c98bb158b47b318da32ec2920563be1"
 
 [metadata.files]
 anyio = [
@@ -1118,8 +1118,8 @@ poetry-semver = [
     {file = "poetry_semver-0.1.0-py2.py3-none-any.whl", hash = "sha256:4e6349bd7231cc657f0e1930f7b204e87e33dfd63eef5cac869363969515083a"},
 ]
 prospector = [
-    {file = "prospector-1.8.1-py3-none-any.whl", hash = "sha256:eca55a1674b2cd8f907129f7efdd7304d734e447c20a1c4cbceabcd0d493ba95"},
-    {file = "prospector-1.8.1.tar.gz", hash = "sha256:ad2cda56a6fac864cb441d41c0f0f73cf697059d339e28ecae7643e7fd02e4c3"},
+    {file = "prospector-1.8.2-py3-none-any.whl", hash = "sha256:3afabfce9b013796dc83edba86e83d84f6069c43da9ec5bf18b88e10e0facf05"},
+    {file = "prospector-1.8.2.tar.gz", hash = "sha256:931003914c2df58aebf3c026c3c2f1c9d1c3eb6115599dfecd06e99516486f88"},
 ]
 py = [
     {file = "py-1.11.0-py2.py3-none-any.whl", hash = "sha256:607c53218732647dff4acdfcd50cb62615cedf612e72d1724fb1a0cc6405b378"},
