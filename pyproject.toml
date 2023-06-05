@@ -8,7 +8,7 @@ authors = ["Morten Lied Johansen <mortenjo@ifi.uio.no>"]
 python = "^3.10"
 fiaas-logging = "^0.1.1"
 pydantic = { version = "^1.10.8", extras = ["dotenv"] }
-fastapi = "^0.95.2"
+fastapi = "^0.96.0"
 uvicorn = { extras = ["standard"], version = "^0.22.0" }
 requests = "^2.31.0"
 paho-mqtt = "^1.6.1"
