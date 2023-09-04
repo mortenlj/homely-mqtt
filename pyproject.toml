@@ -7,7 +7,7 @@ authors = ["Morten Lied Johansen <mortenjo@ifi.uio.no>"]
 [tool.poetry.dependencies]
 python = "^3.10"
 fiaas-logging = "^0.1.1"
-fastapi = "^0.103.0"
+fastapi = "^0.103.1"
 uvicorn = { extras = ["standard"], version = "^0.23.2" }
 requests = "^2.31.0"
 paho-mqtt = "^1.6.1"
