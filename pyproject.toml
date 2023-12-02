@@ -3,6 +3,8 @@ name = "homely-mqtt"
 version = "0.1.0"
 description = ""
 authors = ["Morten Lied Johansen <mortenjo@ifi.uio.no>"]
+license = "MIT"
+packages = [{include = "ibidem"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
