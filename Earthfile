@@ -77,5 +77,6 @@ manifests:
     DO lib-k8s-commands+ASSEMBLE_MANIFESTS --IMAGE=${main_image} --VERSION=${VERSION}
 
 deploy:
+    BUILD --platform=linux/amd64 +build  # Do an explicit build to generate test report
     BUILD --platform=linux/amd64 --platform=linux/arm64 +docker
     BUILD +manifests
