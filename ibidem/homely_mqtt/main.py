@@ -62,7 +62,7 @@ def init_logging_for_app():
 @app.on_event("startup")
 def launch_subsystems():
     LOG.info("Setting up subsystems")
-    manager.register_subsystem("homely", Homely(settings.homely_username, settings.homely_password))
+    manager.register_subsystem("homely", Homely(settings.homely_username, settings.homely_password, settings.homely_location))
     manager.launch()
 
 

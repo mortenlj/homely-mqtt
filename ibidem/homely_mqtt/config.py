@@ -18,6 +18,7 @@ class Settings(BaseSettings):
 
     homely_username: str
     homely_password: str
+    homely_location: str = "Hjemme"
 
     @property
     def debug(self):
