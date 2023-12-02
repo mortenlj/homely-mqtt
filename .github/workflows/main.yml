@@ -9,6 +9,11 @@ on: [ push ]
 env:
   main_image: ghcr.io/${{ github.repository }}
   cache_image: ghcr.io/${{ github.repository }}/cache:cache
+  EARTHLY_USE_INLINE_CACHE: true
+  EARTHLY_SAVE_INLINE_CACHE: true
+  EARTHLY_VERBOSE: true
+  EARTHLY_FULL_TARGET: true
+  EARTHLY_OUTPUT: true
 
 jobs:
   setup:
@@ -43,62 +48,74 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/checkout@v4
-      - name: Build and possibly push
+      - name: Install earthly
+        uses: earthly/actions-setup@be3fe0c1f84e9776b5a184d21bf7a4a779ea2e6b # ratchet:earthly/actions-setup@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          use-cache: true
+      - name: Build and possibly push mutilator
         env:
           EARTHLY_PUSH: "${{ github.ref == 'refs/heads/main' }}"
         run: |
-          ./earthlyw --version
-          ./earthlyw --ci --output "--remote-cache=${cache_image}" +deploy "--main_image=${main_image}" "--VERSION=${VERSION}"
+          earthly config global.cache_size_pct 50
+          earthly "--remote-cache=${cache_image}" +deploy "--main_image=${main_image}" "--VERSION=${VERSION}"
       - name: Save manifests for later deploy
         uses: actions/upload-artifact@v3
         with:
           name: manifests
           path: deploy.yaml
-      - name: Save test results for later reporting
-        uses: actions/upload-artifact@v3  # upload test results
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          name: test-results
-          path: xunit.xml
-# XXX: Disable deploy until new cluster
-#  deploy:
-#    name: Deploy
-#    if: github.ref == 'refs/heads/main'
-#    runs-on: ubuntu-latest
-#    needs:
-#      - setup
-#      - build
-#    steps:
-#      - name: Download manifests from build
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: manifests
-#      - name: Install kubectl
-#        uses: azure/setup-kubectl@v3
-#        id: install
-#      - name: Configure kubectl
-#        run: |
-#          KUBECONFIG=$(mktemp --suffix kubeconfig)
-#          echo "${{ secrets.KUBECONFIG }}" > "${KUBECONFIG}"
-#          echo "KUBECONFIG=${KUBECONFIG}" >> ${GITHUB_ENV}
-#      - id: join-zt
-#        name: Join ZeroTier network
-#        uses: mortenlj/zerotier-actions/join-zt@main
-#        with:
-#          network_id: ${{ secrets.ZEROTIER_NETWORK_ID }}
-#          api_accesstoken: ${{ secrets.ZEROTIER_API_ACCESSTOKEN }}
-#      - name: Run kubectl apply
-#        run: |
-#          echo "::group::ZeroTier debugging"
-#          sudo zerotier-cli peers
-#          sudo zerotier-cli listnetworks
-#          ping -c 5 k3s.oci.zt.ibidem.no
-#          echo "::endgroup::"
-#          ${{ steps.install.outputs.kubectl-path}} apply --namespace=default --context=k3s-oci --filename=deploy.yaml --selector=app.kubernetes.io/name=homely-mqtt --prune=true --wait=true --timeout=60s
-#      - name: Leave ZeroTier network
-#        if: always()
-#        uses: mortenlj/zerotier-actions/leave-zt@main
-#        with:
-#          node_id: ${{ steps.join-zt.outputs.node_id }}
-#          network_id: ${{ secrets.ZEROTIER_NETWORK_ID }}
-#          api_accesstoken: ${{ secrets.ZEROTIER_API_ACCESSTOKEN }}
+          files: |
+            xunit.xml
+  deploy:
+    name: Deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs:
+      - setup
+      - build
+    steps:
+      - name: Download manifests from build
+        uses: actions/download-artifact@v3
+        with:
+          name: manifests
+      - name: Install and configure kubectl
+        run: |
+          mkdir -p /tmp/kubectl
+          cd /tmp/kubectl
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+          echo "$(<kubectl.sha256)  kubectl" | sha256sum --check
+          chmod +x kubectl
+          echo "${{ secrets.KUBECONFIG }}" > /tmp/kubectl/kubeconfig
+          echo "KUBECONFIG=/tmp/kubectl/kubeconfig" >> ${GITHUB_ENV}
+      - id: join-zt
+        name: Join ZeroTier network
+        uses: mortenlj/zerotier-actions/join-zt@main
+        with:
+          network_id: ${{ secrets.ZEROTIER_NETWORK_ID }}
+          api_accesstoken: ${{ secrets.ZEROTIER_API_ACCESSTOKEN }}
+          ping_target: k3s.home.ibidem.no
+      - name: Run kubectl apply
+        run: |
+          export PATH=/tmp/kubectl:${PATH}
+          echo "::group::ZeroTier debugging"
+          sudo zerotier-cli info
+          sudo zerotier-cli peers
+          sudo zerotier-cli listnetworks
+          ping -c 5 k3s.home.ibidem.no
+          echo "::endgroup::"
+          echo "::group::Manifest debugging"
+          cat deploy.yaml | grep -E 'kind|apiVersion'
+          echo "::endgroup::"
+          kubectl apply --namespace=default --context=k3s-home --filename=deploy.yaml --selector=app=homely-mqtt --prune=true --wait=true --timeout=60s
+      - name: Leave ZeroTier network
+        if: always()
+        uses: mortenlj/zerotier-actions/leave-zt@main
+        with:
+          node_id: ${{ steps.join-zt.outputs.node_id }}
+          network_id: ${{ secrets.ZEROTIER_NETWORK_ID }}
+          api_accesstoken: ${{ secrets.ZEROTIER_API_ACCESSTOKEN }}
