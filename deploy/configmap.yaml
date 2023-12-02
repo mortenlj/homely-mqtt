@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "homely-mqtt-config"
+  namespace: default
+  labels:
+    app: homely-mqtt
+data:
+  bind_address: "0.0.0.0"
+  mode: "Release"

@@ -16,7 +16,7 @@ class HomelySettings(BaseModel):
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="HOMELY_MQTT__", env_file=".env", env_nested_delimiter="__")
+    model_config = SettingsConfigDict(env_file=".env", env_nested_delimiter="__")
 
     mode: Mode = Mode.DEBUG
     bind_address: str = "127.0.0.1"
