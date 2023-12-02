@@ -5,7 +5,7 @@ IMPORT github.com/mortenlj/earthly-lib/kubernetes/commands AS lib-k8s-commands
 FROM busybox
 
 deps:
-    FROM python:3.10-slim
+    FROM python:3.11-slim
 
     WORKDIR /app
 
@@ -27,9 +27,10 @@ build:
     RUN poetry install --no-interaction && \
         poetry run black --check . && \
         poetry run prospector && \
-        poetry run pytest
+        poetry run pytest --junit-xml=xunit.xml
 
     SAVE ARTIFACT ibidem
+    SAVE ARTIFACT ./xunit.xml AS LOCAL xunit.xml
     SAVE IMAGE --cache-hint
 
 test:
@@ -45,7 +46,7 @@ black:
         poetry run black .
 
 docker:
-    FROM python:3.10-slim
+    FROM python:3.11-slim
 
     WORKDIR /app
 

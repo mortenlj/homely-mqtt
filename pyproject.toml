@@ -5,7 +5,7 @@ description = ""
 authors = ["Morten Lied Johansen <mortenjo@ifi.uio.no>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 fiaas-logging = "^0.1.1"
 fastapi = "^0.104.1"
 uvicorn = { extras = ["standard"], version = "^0.24.0" }
