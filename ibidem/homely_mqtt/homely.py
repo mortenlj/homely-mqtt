@@ -1,8 +1,8 @@
 import datetime
 import logging
-import time
 
 import requests
+import socketio
 
 from ibidem.homely_mqtt.subsystems import SubsystemState
 
@@ -35,17 +35,26 @@ class Homely:
     def __call__(self, state: SubsystemState):
         self._state = state
         self._authenticate()
+        sio = socketio.Client()
+        sio.on("*", self._on_event)
+        self._locations = self._get_locations()
+        LOG.info(f"Got locations: {self._locations}")
+        url = SOCKET_URL + f"?locationId={self._locations[0]['locationId']}&token={self._access_token}"
+        sio.connect(url, headers={
+            "Authorization": f"Bearer {self._access_token}"
+        })
         while True:
-            time.sleep(5)
             try:
+                sio.wait()
                 if datetime.datetime.now() > self._refresh_after:
                     self._refresh()
-                    self._locations = self._get_locations()
-                    LOG.info(f"Got locations: {self._locations}")
                 self._state.ready = True
             except requests.RequestException as e:
                 if not e.response or 400 <= e.response.status_code < 500:
                     self._state.ready = False
+
+    def _on_event(self, data):
+        LOG.debug('event received:', data)
 
     def _get_locations(self):
         resp = self._session.get(LOCATIONS_URL)
@@ -64,6 +73,7 @@ class Homely:
 
     def _update_auth(self, auth_data):
         self._session.auth = HomelyAuth(auth_data["access_token"])
+        self._access_token = auth_data["access_token"]
         self._refresh_token = auth_data["refresh_token"]
         self._refresh_after = datetime.datetime.now() + datetime.timedelta(seconds=auth_data["expires_in"])
         LOG.debug(f"Access token expires at {self._refresh_after}")
