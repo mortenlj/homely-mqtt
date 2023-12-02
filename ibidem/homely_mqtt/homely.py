@@ -60,6 +60,7 @@ class Event(BaseModel):
             'partnerCode': 1275
         }
     }"""
+
     type: str
     device_id: UUID
     changes: list[Measurement]
@@ -69,7 +70,7 @@ class Event(BaseModel):
         return cls(
             type=data["type"],
             device_id=UUID(data["data"]["deviceId"]),
-            changes=[Measurement.model_validate(change) for change in data["data"]["changes"]]
+            changes=[Measurement.model_validate(change) for change in data["data"]["changes"]],
         )
 
 
@@ -91,9 +92,7 @@ class Homely:
         self._update_locations()
         self._update_devices()
         url = SOCKET_URL + f"?locationId={self._home['locationId']}&token={self._access_token}"
-        sio.connect(url, headers={
-            "Authorization": f"Bearer {self._access_token}"
-        })
+        sio.connect(url, headers={"Authorization": f"Bearer {self._access_token}"})
         while True:
             try:
                 sio.wait()
@@ -106,7 +105,7 @@ class Homely:
 
     def _on_event(self, data):
         event = Event.parse(data)
-        LOG.debug('event received: %r', event)
+        LOG.debug("event received: %r", event)
         if event.type != "device-state-changed":
             LOG.warning(f"Unknown event type {event.type}")
             return
@@ -136,19 +135,20 @@ class Homely:
         LOG.info(f"Got devices: {self._devices}")
 
     def _authenticate(self):
-        resp = self._session.post(AUTH_URL, {
-            "username": self._username,
-            "password": self._password,
-        })
+        resp = self._session.post(
+            AUTH_URL,
+            {
+                "username": self._username,
+                "password": self._password,
+            },
+        )
         resp.raise_for_status()
         LOG.info("Successfully authenticated with Homely API")
         auth_data = resp.json()
         self._update_auth_data(auth_data)
 
     def _refresh(self):
-        resp = self._session.post(REFRESH_URL, {
-            "refresh_token": self._refresh_token
-        })
+        resp = self._session.post(REFRESH_URL, {"refresh_token": self._refresh_token})
         resp.raise_for_status()
         LOG.error("Successfully refreshed access token with Homely API")
         auth_data = resp.json()
