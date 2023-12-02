@@ -1,6 +1,6 @@
-VERSION 0.6
+VERSION 0.7
 
-FROM python:3.10
+FROM python:3.11
 WORKDIR /code
 
 ARG POETRY_INSTALL_COMMON="--no-interaction"
@@ -27,7 +27,7 @@ test:
     SAVE ARTIFACT ./xunit.xml AS LOCAL xunit.xml
 
 docker:
-    FROM python:3.10-slim
+    FROM python:3.11-slim
     WORKDIR /code
 
     BUILD +test
