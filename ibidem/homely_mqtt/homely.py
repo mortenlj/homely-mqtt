@@ -74,13 +74,13 @@ class Event(BaseModel):
 
 
 class Homely:
-    def __init__(self, username, password, location_name):
-        self._state = None
-        self._username = username
-        self._password = password
+    def __init__(self, settings):
+        self._username = settings.username
+        self._password = settings.password
+        self._location_name = settings.location
         self._session = requests.Session()
         self._locations = []
-        self._location_name = location_name
+        self._state = None
         self._home = None
 
     def __call__(self, state: SubsystemState):

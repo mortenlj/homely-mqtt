@@ -1,6 +1,6 @@
 from enum import Enum
-from typing import Optional
 
+from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,16 +9,20 @@ class Mode(str, Enum):
     RELEASE = "Release"
 
 
+class HomelySettings(BaseModel):
+    username: str
+    password: str
+    location: str = "Hjemme"
+
+
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="HOMELY_MQTT_", env_file=".env")
+    model_config = SettingsConfigDict(env_prefix="HOMELY_MQTT__", env_file=".env", env_nested_delimiter="__")
 
     mode: Mode = Mode.DEBUG
     bind_address: str = "127.0.0.1"
     port: int = 3000
 
-    homely_username: str
-    homely_password: str
-    homely_location: str = "Hjemme"
+    homely: HomelySettings
 
     @property
     def debug(self):
