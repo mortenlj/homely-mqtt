@@ -1,10 +1,11 @@
 import datetime
 import logging
+from typing import Optional
 from uuid import UUID
 
 import requests
 import socketio
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from ibidem.homely_mqtt.subsystems import SubsystemState
 
@@ -32,6 +33,46 @@ class Device(BaseModel):
     location: str
 
 
+class Measurement(BaseModel):
+    device: Optional[Device] = None
+    feature: str
+    state_name: str = Field(alias="stateName")
+    value: float
+
+
+class Event(BaseModel):
+    """{
+        'type': 'device-state-changed',
+        'data': {
+            'deviceId': 'ba265ebe-1aa1-4361-a5e1-e93bcd2fd9af',
+            'gatewayId': 'a9eea2d8-9ea9-45f8-a7de-597df33fe6a3',
+            'locationId': 'a6f93ada-d626-477e-9aee-fc12a0a01c61',
+            'modelId': 'ffe30099-92c5-4471-879f-41f412d423ab',
+            'rootLocationId': 'b4dbbfd9-dd8d-4db6-a5eb-7ce7a2d2397f',
+            'changes': [
+                {
+                    'feature': 'diagnostic',
+                    'stateName': 'networklinkstrength',
+                    'value': 47,
+                    'lastUpdated': '2023-12-02T14:02:02.391Z'
+                }
+            ],
+            'partnerCode': 1275
+        }
+    }"""
+    type: str
+    device_id: UUID
+    changes: list[Measurement]
+
+    @classmethod
+    def parse(cls, data):
+        return cls(
+            type=data["type"],
+            device_id=UUID(data["data"]["deviceId"]),
+            changes=[Measurement.model_validate(change) for change in data["data"]["changes"]]
+        )
+
+
 class Homely:
     def __init__(self, username, password, location_name):
         self._state = None
@@ -46,7 +87,7 @@ class Homely:
         self._state = state
         self._authenticate()
         sio = socketio.Client()
-        sio.on("*", self._on_event)
+        sio.on("event", self._on_event)
         self._update_locations()
         self._update_devices()
         url = SOCKET_URL + f"?locationId={self._home['locationId']}&token={self._access_token}"
@@ -64,7 +105,15 @@ class Homely:
                     self._state.ready = False
 
     def _on_event(self, data):
-        LOG.debug('event received:', data)
+        event = Event.parse(data)
+        LOG.debug('event received: %r', event)
+        if event.type != "device-state-changed":
+            LOG.warning(f"Unknown event type {event.type}")
+            return
+        device = self._devices[event.device_id]
+        for change in event.changes:
+            change.device = device
+            LOG.info(f"Captured measurement: {change}")
 
     def _update_locations(self):
         resp = self._session.get(LOCATIONS_URL)
