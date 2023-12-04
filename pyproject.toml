@@ -14,7 +14,7 @@ uvicorn = { extras = ["standard"], version = "^0.24.0" }
 requests = "^2.31.0"
 paho-mqtt = "^1.6.1"
 pydantic-settings = "^2.1.0"
-python-socketio = { version = "<5", extras = ["client"] }
+python-socketio = { version = "<6", extras = ["client"] }
 pydantic = "^2.5.2"
 
 [tool.poetry.dev-dependencies]
