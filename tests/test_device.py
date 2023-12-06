@@ -9,12 +9,13 @@ FloorData = namedtuple("FloorData", ["expected", "input"])
 
 
 class TestDevice:
-
-    @pytest.fixture(params=[
-        FloorData("Basement", "Floor -1"),
-        FloorData("Ground", "Floor 0"),
-        FloorData("2", "Floor 1"),
-    ])
+    @pytest.fixture(
+        params=[
+            FloorData("Basement", "Floor -1"),
+            FloorData("Ground", "Floor 0"),
+            FloorData("2", "Floor 1"),
+        ]
+    )
     def floor(self, request):
         return request.param
 
