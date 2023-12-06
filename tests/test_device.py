@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from ibidem.homely_mqtt.homely import Device
+from ibidem.homely_mqtt.models import Device
 
 FloorData = namedtuple("FloorData", ["expected", "input"])
 

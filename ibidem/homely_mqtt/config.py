@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, FilePath, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,6 +15,15 @@ class HomelySettings(BaseModel):
     location: str = "Hjemme"
 
 
+class MqttSettings(BaseModel):
+    topic_prefix: str = "homely-mqtt"
+    broker_url: str = None
+    broker_port: int = 1883
+    ca_certs: FilePath = None
+    certfile: FilePath = None
+    keyfile: FilePath = None
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_nested_delimiter="__")
 
@@ -22,7 +31,8 @@ class Settings(BaseSettings):
     bind_address: str = "127.0.0.1"
     port: int = 3000
 
-    homely: HomelySettings
+    homely: HomelySettings = Field(default_factory=HomelySettings)
+    mqtt: MqttSettings = Field(default_factory=MqttSettings)
 
     @property
     def debug(self):

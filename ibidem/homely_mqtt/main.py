@@ -2,6 +2,7 @@
 import logging
 import signal
 import sys
+from queue import Queue
 
 import uvicorn
 from fastapi import FastAPI
@@ -9,6 +10,7 @@ from fastapi import FastAPI
 from ibidem.homely_mqtt.config import settings
 from ibidem.homely_mqtt.homely import Homely
 from ibidem.homely_mqtt.logging import get_log_config
+from ibidem.homely_mqtt.mqtt import MqttManager
 from ibidem.homely_mqtt.probes import router as probe_router
 from ibidem.homely_mqtt.subsystems import manager
 
@@ -67,7 +69,9 @@ def _adjust_noisy_loggers():
 @app.on_event("startup")
 def launch_subsystems():
     LOG.info("Setting up subsystems")
-    manager.register_subsystem("homely", Homely(settings.homely))
+    measurements_queue = Queue()
+    manager.register_subsystem("homely", Homely(settings.homely, measurements_queue))
+    manager.register_subsystem("mqtt", MqttManager(settings.mqtt, measurements_queue))
     manager.launch()
 
 

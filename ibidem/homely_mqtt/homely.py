@@ -1,13 +1,13 @@
 import datetime
 import logging
-from typing import Optional, Union
+from queue import Queue
 from uuid import UUID
 
 import requests
 import socketio
-from pydantic import BaseModel, Field
-from slugify import slugify
+from pydantic import BaseModel
 
+from ibidem.homely_mqtt.models import Device, Measurement
 from ibidem.homely_mqtt.subsystems import SubsystemState
 
 AUTH_URL = "https://sdk.iotiliti.cloud/homely/oauth/token"
@@ -26,51 +26,6 @@ class HomelyAuth(requests.auth.AuthBase):
     def __call__(self, r):
         r.headers["authorization"] = f"Bearer {self.token}"
         return r
-
-
-class Device(BaseModel):
-    id: UUID
-    name: str
-    location: str
-
-    @property
-    def floor(self):
-        split_idx = self.location.rfind("-")
-        if split_idx > 0:
-            floor = self.location[:split_idx].strip()
-            floor_number = int(floor.split()[-1])
-            if floor_number == 0:
-                return "Ground"
-            if floor_number < 0:
-                return "Basement"
-            return str(floor_number + 1)
-        return self.location
-
-    @property
-    def room(self):
-        split_idx = self.location.rfind("-")
-        if split_idx > 0:
-            return self.location[split_idx + 1 :].strip()
-        return self.location
-
-    @property
-    def slug(self):
-        return slugify(f"{self.name} {self.floor} {self.room}", separator="_")
-
-
-class Measurement(BaseModel):
-    device: Optional[Device] = None
-    feature: str
-    state_name: str = Field(alias="stateName")
-    value: Union[float, int, str]
-
-    @property
-    def sensor_name(self):
-        if self.feature == self.state_name:
-            return self.feature
-        if self.feature == "diagnostic":
-            return self.state_name
-        return f"{self.feature}_{self.state_name}"
 
 
 class Event(BaseModel):
@@ -108,7 +63,8 @@ class Event(BaseModel):
 
 
 class Homely:
-    def __init__(self, settings):
+    def __init__(self, settings, measurement_queue: Queue):
+        self.measurement_queue = measurement_queue
         self._username = settings.username
         self._password = settings.password
         self._location_name = settings.location
@@ -126,12 +82,13 @@ class Homely:
         self._update_devices()
         url = SOCKET_URL + f"?locationId={self._home['locationId']}&token={self._access_token}"
         sio.connect(url, headers={"Authorization": f"Bearer {self._access_token}"})
+        self._state.ready = True
         while True:
             try:
                 sio.wait()
                 if datetime.datetime.now() > self._refresh_after:
                     self._refresh()
-                self._state.ready = True
+                    self._state.ready = True
             except requests.RequestException as e:
                 if not e.response or 400 <= e.response.status_code < 500:
                     self._state.ready = False
@@ -146,6 +103,7 @@ class Homely:
         for measurement in event.changes:
             measurement.device = device
             LOG.info(f"Captured measurement: {measurement.device.slug}/{measurement.sensor_name}: {measurement.value}")
+            self.measurement_queue.put(measurement)
 
     def _update_locations(self):
         resp = self._session.get(LOCATIONS_URL)

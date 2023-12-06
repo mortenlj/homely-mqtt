@@ -9,3 +9,4 @@ metadata:
 data:
   bind_address: "0.0.0.0"
   mode: "Release"
+  mqtt__broker_url: "emrys.default"
