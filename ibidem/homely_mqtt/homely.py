@@ -6,6 +6,7 @@ from uuid import UUID
 import requests
 import socketio
 from pydantic import BaseModel, Field
+from slugify import slugify
 
 from ibidem.homely_mqtt.subsystems import SubsystemState
 
@@ -32,12 +33,24 @@ class Device(BaseModel):
     name: str
     location: str
 
+    @property
+    def slug(self):
+        return slugify(f"{self.name} {self.location}")
+
 
 class Measurement(BaseModel):
     device: Optional[Device] = None
     feature: str
     state_name: str = Field(alias="stateName")
-    value: float
+    value: str
+
+    @property
+    def sensor_name(self):
+        if self.feature == self.state_name:
+            return self.feature
+        if self.feature == "diagnostic":
+            return self.state_name
+        return f"{self.feature}_{self.state_name}"
 
 
 class Event(BaseModel):
@@ -110,9 +123,9 @@ class Homely:
             LOG.warning(f"Unknown event type {event.type}")
             return
         device = self._devices[event.device_id]
-        for change in event.changes:
-            change.device = device
-            LOG.info(f"Captured measurement: {change}")
+        for measurement in event.changes:
+            measurement.device = device
+            LOG.info(f"Captured measurement: {measurement.device.slug}/{measurement.sensor_name}: {measurement.value}")
 
     def _update_locations(self):
         resp = self._session.get(LOCATIONS_URL)
