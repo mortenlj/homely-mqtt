@@ -1,6 +1,6 @@
 import datetime
 import logging
-from typing import Optional
+from typing import Optional, Union
 from uuid import UUID
 
 import requests
@@ -42,7 +42,7 @@ class Measurement(BaseModel):
     device: Optional[Device] = None
     feature: str
     state_name: str = Field(alias="stateName")
-    value: str
+    value: Union[float, int, str]
 
     @property
     def sensor_name(self):
