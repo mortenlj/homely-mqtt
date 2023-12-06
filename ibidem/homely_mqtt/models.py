@@ -27,7 +27,7 @@ class Device(BaseModel):
     def room(self):
         split_idx = self.location.rfind("-")
         if split_idx > 0:
-            return self.location[split_idx + 1:].strip()
+            return self.location[split_idx + 1 :].strip()
         return self.location
 
     @property
