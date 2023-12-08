@@ -70,7 +70,7 @@ class MqttManager:
             if mmi.rc == mqtt.MQTT_ERR_SUCCESS:
                 return
             try:
-                mmi.wait_for_publish(timeout=timeout/10)
+                mmi.wait_for_publish(timeout=timeout / 10)
             except RuntimeError as e:
                 LOG.warning(e)
         raise MqttException("Failed to publish message after timeout: %s", mqtt.error_string(mmi.rc))
