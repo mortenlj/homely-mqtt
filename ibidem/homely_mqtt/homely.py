@@ -165,11 +165,8 @@ class Homely:
                 if isinstance(state_value, str):
                     continue
                 value = float(state_value) if isinstance(state_value, bool) else state_value
-                measurement = Measurement(
-                    device=device,
-                    feature=feature_name,
-                    stateName=state_name,
-                    value=value
+                measurement = Measurement(device=device, feature=feature_name, stateName=state_name, value=value)
+                LOG.info(
+                    f"Fetched measurement: {measurement.device.slug}/{measurement.sensor_name}: {measurement.value}"
                 )
-                LOG.info(f"Fetched measurement: {measurement.device.slug}/{measurement.sensor_name}: {measurement.value}")
                 self.measurement_queue.put(measurement)
