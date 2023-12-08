@@ -89,6 +89,7 @@ class Homely:
                 if datetime.datetime.now() > self._refresh_after:
                     self._refresh()
                     self._state.ready = True
+                    self._update_devices()
             except requests.RequestException as e:
                 if not e.response or 400 <= e.response.status_code < 500:
                     self._state.ready = False
@@ -154,7 +155,6 @@ class Homely:
         LOG.debug(f"Access token expires at {self._refresh_after}")
 
     def _update_measurements(self, device_data, device):
-        LOG.debug("Updating measurements from device_data %r", device_data)
         for feature_name, feature_data in device_data["features"].items():
             if feature_name == "setup":
                 continue
