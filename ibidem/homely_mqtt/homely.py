@@ -122,6 +122,7 @@ class Homely:
         for device_data in resp.json()["devices"]:
             device = Device.model_validate(device_data)
             devices[device.id] = device
+            self._update_measurements(device_data, device)
         self._devices = devices
         LOG.info(f"Got devices: {self._devices}")
 
@@ -151,3 +152,24 @@ class Homely:
         self._refresh_token = auth_data["refresh_token"]
         self._refresh_after = datetime.datetime.now() + datetime.timedelta(seconds=auth_data["expires_in"])
         LOG.debug(f"Access token expires at {self._refresh_after}")
+
+    def _update_measurements(self, device_data, device):
+        LOG.debug("Updating measurements from device_data %r", device_data)
+        for feature_name, feature_data in device_data["features"].items():
+            if feature_name == "setup":
+                continue
+            for state_name, state_data in feature_data["states"].items():
+                state_value = state_data["value"]
+                if state_value is None:
+                    continue
+                if isinstance(state_value, str):
+                    continue
+                value = float(state_value) if isinstance(state_value, bool) else state_value
+                measurement = Measurement(
+                    device=device,
+                    feature=feature_name,
+                    stateName=state_name,
+                    value=value
+                )
+                LOG.info(f"Fetched measurement: {measurement.device.slug}/{measurement.sensor_name}: {measurement.value}")
+                self.measurement_queue.put(measurement)

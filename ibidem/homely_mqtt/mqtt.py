@@ -32,7 +32,7 @@ class MqttManager:
             self._client.tls_set(settings.ca_certs, settings.certfile, settings.keyfile)
         self._client.enable_logger()
         self._client.loop_start()
-        self._client.connect_async(settings.broker_url, settings.broker_port, keepalive=KEEPALIVE_SECONDS)
+        self._client.connect(settings.broker_url, settings.broker_port, keepalive=KEEPALIVE_SECONDS)
         self._topic_prefix = settings.topic_prefix
 
     def __call__(self, state: SubsystemState):
