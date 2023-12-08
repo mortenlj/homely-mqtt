@@ -20,7 +20,8 @@ def make_client_id():
 
 
 class MqttException(Exception):
-    pass
+    def __str__(self):
+        return f"{self.__class__.__name__}: {self.args[0] % self.args[1:]}"
 
 
 class MqttManager:
@@ -56,8 +57,7 @@ class MqttManager:
         mmi = self._client.publish(topic, value, qos=1, properties=properties)
         if mmi.rc == mqtt.MQTT_ERR_NO_CONN:
             LOG.warning("Broker not connected, waiting for message to be published")
-            if not self.mmi_wait_for_publish(mmi):
-                raise MqttException("Failed to publish message after timeout: %s", mqtt.error_string(mmi.rc))
+            self.mmi_wait_for_publish(mmi)
         elif mmi.rc == mqtt.MQTT_ERR_QUEUE_SIZE:
             raise MqttException("MQTT output queue full")
         LOG.debug("Published measurement on topic %s: %r", topic, value)
@@ -68,13 +68,9 @@ class MqttManager:
         start = time.time()
         while time.time() < (start + timeout):
             if mmi.rc == mqtt.MQTT_ERR_SUCCESS:
-                return True
-            if mmi.rc in (mqtt.MQTT_ERR_NO_CONN, mqtt.MQTT_ERR_CONN_LOST):
-                try:
-                    mmi.wait_for_publish(timeout=0.2)
-                except RuntimeError as e:
-                    LOG.error(e)
-                    return False
-                continue
-            return False
-        return False
+                return
+            try:
+                mmi.wait_for_publish(timeout=timeout/10)
+            except RuntimeError as e:
+                LOG.warning(e)
+        raise MqttException("Failed to publish message after timeout: %s", mqtt.error_string(mmi.rc))
