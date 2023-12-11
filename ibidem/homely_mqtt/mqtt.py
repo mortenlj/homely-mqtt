@@ -2,10 +2,12 @@ import logging
 import socket
 import time
 import uuid
+from queue import Queue
 
 import paho.mqtt.client as mqtt
 from paho.mqtt.packettypes import PacketTypes
 
+from ibidem.homely_mqtt.config import MqttSettings
 from ibidem.homely_mqtt.models import Measurement
 from ibidem.homely_mqtt.subsystems import SubsystemState
 
@@ -25,7 +27,7 @@ class MqttException(Exception):
 
 
 class MqttManager:
-    def __init__(self, settings, measurement_queue):
+    def __init__(self, settings: MqttSettings, measurement_queue: Queue):
         self.measurement_queue = measurement_queue
         self._state = None
         self._client = mqtt.Client(client_id=make_client_id(), protocol=mqtt.MQTTv5)
@@ -35,6 +37,7 @@ class MqttManager:
         self._client.loop_start()
         self._client.connect(settings.broker_url, settings.broker_port, keepalive=KEEPALIVE_SECONDS)
         self._topic_prefix = settings.topic_prefix
+        self._publish_enabled = settings.publish_enabled
 
     def __call__(self, state: SubsystemState):
         self._state = state
@@ -54,14 +57,14 @@ class MqttManager:
         ]
         topic = f"{self._topic_prefix}/{measurement.device.slug}/sensor/{measurement.sensor_name}"
         value = measurement.value
-        mmi = self._client.publish(topic, value, qos=1, properties=properties)
-        if mmi.rc == mqtt.MQTT_ERR_NO_CONN:
-            LOG.warning("Broker not connected, waiting for message to be published")
-            self.mmi_wait_for_publish(mmi)
-        elif mmi.rc == mqtt.MQTT_ERR_QUEUE_SIZE:
-            raise MqttException("MQTT output queue full")
-        LOG.debug("Published measurement on topic %s: %r", topic, value)
-        return mmi
+        if self._publish_enabled:
+            mmi = self._client.publish(topic, value, qos=1, properties=properties)
+            if mmi.rc == mqtt.MQTT_ERR_NO_CONN:
+                LOG.warning("Broker not connected, waiting for message to be published")
+                self.mmi_wait_for_publish(mmi)
+            elif mmi.rc == mqtt.MQTT_ERR_QUEUE_SIZE:
+                raise MqttException("MQTT output queue full")
+            LOG.debug("Published measurement on topic %s: %r", topic, value)
 
     @staticmethod
     def mmi_wait_for_publish(mmi, timeout=PUBLISH_TIMEOUT_SECONDS):

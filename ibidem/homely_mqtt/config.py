@@ -22,6 +22,7 @@ class MqttSettings(BaseModel):
     ca_certs: FilePath = None
     certfile: FilePath = None
     keyfile: FilePath = None
+    publish_enabled: bool = True
 
 
 class Settings(BaseSettings):
