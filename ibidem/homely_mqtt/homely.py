@@ -85,11 +85,11 @@ class Homely:
         self._state.ready = True
         while True:
             try:
-                sio.wait()
                 if datetime.datetime.now() > self._refresh_after:
                     self._refresh()
                     self._state.ready = True
                     self._update_devices()
+                sio.wait()
             except requests.RequestException as e:
                 if not e.response or 400 <= e.response.status_code < 500:
                     self._state.ready = False
@@ -143,7 +143,7 @@ class Homely:
     def _refresh(self):
         resp = self._session.post(REFRESH_URL, {"refresh_token": self._refresh_token})
         resp.raise_for_status()
-        LOG.error("Successfully refreshed access token with Homely API")
+        LOG.info("Successfully refreshed access token with Homely API")
         auth_data = resp.json()
         self._update_auth_data(auth_data)
 
