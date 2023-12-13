@@ -121,6 +121,7 @@ class Homely:
         resp.raise_for_status()
         devices = {}
         for device_data in resp.json()["devices"]:
+            LOG.debug("device_data: %r", device_data)
             device = Device.model_validate(device_data)
             devices[device.id] = device
             self._update_measurements(device_data, device)

@@ -8,6 +8,7 @@ from slugify import slugify
 class Device(BaseModel):
     id: UUID
     name: str
+    model_name: str = Field(alias="modelName")
     location: str
 
     @property
