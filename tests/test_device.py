@@ -23,12 +23,19 @@ class TestDevice:
     def room(self, request):
         return request.param
 
+    @pytest.fixture(params=["Smoke Alarm", "Motion Sensor Mini", "Window Sensor"])
+    def model_name(self, request):
+        return request.param
+
     @pytest.fixture
-    def device(self, floor, room):
-        return Device(id=uuid4(), name="Test Device", location=f"{floor.input} - {room}")
+    def device(self, floor, room, model_name):
+        return Device(id=uuid4(), name="Test Device", location=f"{floor.input} - {room}", modelName=model_name)
 
     def test_floor(self, device, floor):
         assert device.floor == floor.expected
 
     def test_room(self, device, room):
         assert device.room == room
+
+    def test_model_name(self, device, model_name):
+        assert device.modelName == model_name

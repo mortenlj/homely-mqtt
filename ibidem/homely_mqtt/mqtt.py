@@ -54,7 +54,7 @@ class MqttManager:
         properties.UserProperty = [
             ("floor", measurement.device.floor),
             ("room", measurement.device.room),
-            ("model", measurement.device.model_name),
+            ("model", measurement.device.modelName),
         ]
         topic = f"{self._topic_prefix}/{measurement.device.slug}/sensor/{measurement.sensor_name}"
         value = measurement.value
