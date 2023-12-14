@@ -1,15 +1,19 @@
 from typing import Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from slugify import slugify
 
 
 class Device(BaseModel):
     id: UUID
     name: str
-    modelName: str
+    model_name: str = Field(alias="modelName")
     location: str
+
+    model_config = ConfigDict(
+        protected_namespaces=(),
+    )
 
     @property
     def floor(self):
