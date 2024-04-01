@@ -10,7 +10,7 @@ packages = [{include = "ibidem"}]
 python = "^3.11"
 fiaas-logging = "^0.1.1"
 fastapi = "^0.110.0"
-uvicorn = { extras = ["standard"], version = "^0.27.1" }
+uvicorn = { extras = ["standard"], version = "^0.29.0" }
 requests = "^2.31.0"
 paho-mqtt = "^1.6.1"
 pydantic-settings = "^2.2.1"
