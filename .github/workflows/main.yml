@@ -63,11 +63,13 @@ jobs:
         env:
           EARTHLY_PUSH: "${{ github.ref == 'refs/heads/main' }}"
           EARTHLY_TOKEN: ${{ secrets.EARTHLY_TOKEN }}
+          EARTHLY_ORG: ${{ secrets.EARTHLY_ORG }}
+          EARTHLY_SATELLITE: ${{ secrets.EARTHLY_SATELLITE }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           earthly config global.cache_size_pct 50
-          earthly -org mortenjo --sat ibidem "--remote-cache=${cache_image}" +deploy "--main_image=${main_image}" "--VERSION=${VERSION}"
+          earthly "--remote-cache=${cache_image}" +deploy "--main_image=${main_image}" "--VERSION=${VERSION}"
       - name: Save manifests for later deploy
         uses: actions/upload-artifact@v4
         with:
