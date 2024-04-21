@@ -160,7 +160,7 @@ class Homely:
             if feature_name == "setup":
                 continue
             for state_name, state_data in feature_data["states"].items():
-                state_value = state_data["value"]
+                state_value = state_data.get("value")
                 if state_value is None:
                     continue
                 if isinstance(state_value, str):
