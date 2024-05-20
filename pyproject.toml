@@ -11,7 +11,7 @@ python = "^3.11"
 fiaas-logging = "^0.1.1"
 fastapi = "^0.111.0"
 uvicorn = { extras = ["standard"], version = "^0.29.0" }
-requests = "^2.31.0"
+requests = "^2.32.0"
 paho-mqtt = "^2"
 pydantic-settings = "^2.2.1"
 python-socketio = { version = "<5", extras = ["client"] }
