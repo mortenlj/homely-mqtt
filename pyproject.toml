@@ -13,7 +13,7 @@ fastapi = "^0.111.0"
 uvicorn = { extras = ["standard"], version = "^0.30.1" }
 requests = "^2.32.3"
 paho-mqtt = "^2"
-pydantic-settings = "^2.3.0"
+pydantic-settings = "^2.3.1"
 python-socketio = { version = "<5", extras = ["client"] }
 pydantic = "^2.7.3"
 python-slugify = "^8.0.4"
