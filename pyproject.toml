@@ -15,7 +15,7 @@ requests = "^2.32.3"
 paho-mqtt = "^2"
 pydantic-settings = "^2.4.0"
 python-socketio = { version = "<5", extras = ["client"] }
-pydantic = "^2.8.2"
+pydantic = "^2.9.0"
 python-slugify = "^8.0.4"
 
 [tool.poetry.dev-dependencies]
