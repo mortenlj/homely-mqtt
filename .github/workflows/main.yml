@@ -149,6 +149,7 @@ jobs:
           package: homely-mqtt/cache
           exclude-tags: cache
           keep-n-tagged: 1
+          delete-untagged: true
           delete-ghost-images: true
           delete-orphaned-images: true
           delete-partial-images: false
