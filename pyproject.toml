@@ -14,7 +14,7 @@ uvicorn = { extras = ["standard"], version = "^0.32.0" }
 requests = "^2.32.3"
 paho-mqtt = "^2"
 pydantic-settings = "^2.6.0"
-python-socketio = { version = "<5", extras = ["client"] }
+python-socketio = { version = "<6", extras = ["client"] }
 pydantic = "^2.9.2"
 python-slugify = "^8.0.4"
 
