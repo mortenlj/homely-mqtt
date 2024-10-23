@@ -22,7 +22,7 @@ jobs:
     name: Set variables
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       - name: "Set image version"
         id: constants
         run: |
@@ -43,17 +43,17 @@ jobs:
     steps:
       - name: Set up QEMU
         id: qemu
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
         with:
           image: tonistiigi/binfmt:latest
           platforms: all
       - name: Login to GitHub Packages Docker Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       - name: Install earthly
         uses: earthly/actions-setup@43211c7a0eae5344d6d79fb4aaf209c8f8866203 # ratchet:earthly/actions-setup@v1
         with:
@@ -71,12 +71,12 @@ jobs:
           earthly config global.cache_size_pct 50
           earthly "--remote-cache=${cache_image}" +deploy "--main_image=${main_image}" "--VERSION=${VERSION}"
       - name: Save manifests for later deploy
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
         with:
           name: manifests
           path: deploy.yaml
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
+        uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2
         if: always()
         with:
           files: |
@@ -90,7 +90,7 @@ jobs:
       - build
     steps:
       - name: Download manifests from build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4
         with:
           name: manifests
       - name: Install and configure kubectl
@@ -133,7 +133,7 @@ jobs:
       packages: write
     steps:
       - name: Cleanup main images
-        uses: dataaxiom/ghcr-cleanup-action@v1.0.13
+        uses: dataaxiom/ghcr-cleanup-action@98b4022383d6ddb70ccbf6a378b4d8c67a60f066 # v1.0.13
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           keep-n-tagged: 5
@@ -143,7 +143,7 @@ jobs:
           delete-orphaned-images: true
           delete-partial-images: true
       - name: Cleanup old cache images
-        uses: dataaxiom/ghcr-cleanup-action@v1.0.13
+        uses: dataaxiom/ghcr-cleanup-action@98b4022383d6ddb70ccbf6a378b4d8c67a60f066 # v1.0.13
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           package: homely-mqtt/cache
