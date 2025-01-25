@@ -1,5 +1,5 @@
 ---
-apiVersion: suffiks.com/v1
+apiVersion: yakup.ibidem.no/v1
 kind: Application
 metadata:
   name: homely-mqtt
@@ -8,7 +8,9 @@ metadata:
     app: homely-mqtt
 spec:
   image: "{{ environ('IMAGE') }}:{{ environ('VERSION') }}"
-  port: 3000
+  ports:
+    http:
+      port: 3000
   envFrom:
     - configmap: homely-mqtt-config
     - secret: homely-mqtt
