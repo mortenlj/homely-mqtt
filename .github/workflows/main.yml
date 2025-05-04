@@ -85,24 +85,18 @@ jobs:
     name: Deploy
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # This is required for requesting the JWT
     needs:
       - setup
       - build
     steps:
+      - name: Get kubeconfig
+        uses: mortenlj/kube-actions/get-kubeconfig@main
       - name: Download manifests from build
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: manifests
-      - name: Install and configure kubectl
-        run: |
-          mkdir -p /tmp/kubectl
-          cd /tmp/kubectl
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-          echo "$(<kubectl.sha256)  kubectl" | sha256sum --check
-          chmod +x kubectl
-          echo "${{ secrets.KUBECONFIG }}" > /tmp/kubectl/kubeconfig
-          echo "KUBECONFIG=/tmp/kubectl/kubeconfig" >> ${GITHUB_ENV}
       - id: join-zt
         name: Join ZeroTier network
         uses: mortenlj/zerotier-actions/join-zt@main
@@ -111,12 +105,7 @@ jobs:
           api_accesstoken: ${{ secrets.ZEROTIER_API_ACCESSTOKEN }}
           ping_target: k3s.home.ibidem.no
       - name: Run kubectl apply
-        run: |
-          export PATH=/tmp/kubectl:${PATH}
-          echo "::group::Manifest debugging"
-          cat deploy.yaml | grep -E 'kind|apiVersion'
-          echo "::endgroup::"
-          kubectl apply --namespace=default --filename=deploy.yaml --selector=app=homely-mqtt --prune=true --wait=true --timeout=60s
+        uses: mortenlj/kube-actions/apply-manifest@main
       - name: Leave ZeroTier network
         if: always()
         uses: mortenlj/zerotier-actions/leave-zt@main
