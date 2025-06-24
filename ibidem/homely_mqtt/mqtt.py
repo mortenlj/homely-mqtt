@@ -43,11 +43,15 @@ class MqttManager:
     def __call__(self, state: SubsystemState):
         self._state = state
         self._state.ready = True
+        counter = 0
         while True:
             try:
                 measurement = self.measurement_queue.get()
                 self.send(measurement)
+                counter += 1
                 self._backoff_seconds = 1
+                if counter % 100 == 0:
+                    LOG.info("Published %d measurements", counter)
             except Exception as e:
                 LOG.exception(e)
                 time.sleep(self._backoff_seconds)
