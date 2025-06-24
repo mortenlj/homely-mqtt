@@ -38,6 +38,7 @@ class MqttManager:
         self._client.connect(settings.broker_url, settings.broker_port, keepalive=KEEPALIVE_SECONDS)
         self._topic_prefix = settings.topic_prefix
         self._publish_enabled = settings.publish_enabled
+        self._backoff_seconds = 1
 
     def __call__(self, state: SubsystemState):
         self._state = state
@@ -46,8 +47,11 @@ class MqttManager:
             try:
                 measurement = self.measurement_queue.get()
                 self.send(measurement)
+                self._backoff_seconds = 1
             except Exception as e:
                 LOG.exception(e)
+                time.sleep(self._backoff_seconds)
+                self._backoff_seconds = min(self._backoff_seconds * 2, 60)
 
     def send(self, measurement: Measurement):
         properties = mqtt.Properties(PacketTypes.PUBLISH)
@@ -66,6 +70,8 @@ class MqttManager:
             elif mmi.rc == mqtt.MQTT_ERR_QUEUE_SIZE:
                 raise MqttException("MQTT output queue full")
             LOG.debug("Published measurement on topic %s: %r", topic, value)
+        else:
+            LOG.debug("Skipping publish of measurement on topic %s: %r", topic, value)
 
     @staticmethod
     def mmi_wait_for_publish(mmi, timeout=PUBLISH_TIMEOUT_SECONDS):
