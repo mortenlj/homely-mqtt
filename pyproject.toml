@@ -23,7 +23,7 @@ pytest = "8.4.1"
 pytest-cov = "6.2.1"
 pytest-sugar = "1.0.0"
 black = "25.1.0"
-prospector = "1.17.2"
+prospector = "1.17.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
