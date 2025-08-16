@@ -21,7 +21,7 @@ python-slugify = "^8.0.4"
 [tool.poetry.dev-dependencies]
 pytest = "8.4.1"
 pytest-cov = "6.2.1"
-pytest-sugar = "1.0.0"
+pytest-sugar = "1.1.0"
 black = "25.1.0"
 prospector = "1.17.3"
 
