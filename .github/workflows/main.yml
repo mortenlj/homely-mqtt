@@ -10,7 +10,6 @@ on:
 
 env:
   main_image: ghcr.io/${{ github.repository }}
-  cache_image: ghcr.io/${{ github.repository }}/cache:cache
   EARTHLY_USE_INLINE_CACHE: true
   EARTHLY_SAVE_INLINE_CACHE: true
   EARTHLY_VERBOSE: true
@@ -47,6 +46,8 @@ jobs:
         with:
           image: tonistiigi/binfmt:latest
           platforms: all
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Login to GitHub Packages Docker Registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
         with:
@@ -59,28 +60,32 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           use-cache: true
-      - name: Build and possibly push
+      - name: Build manifests
         env:
-          EARTHLY_PUSH: "${{ github.ref == 'refs/heads/main' }}"
-          EARTHLY_TOKEN: ${{ secrets.EARTHLY_TOKEN }}
-          EARTHLY_ORG: ${{ vars.EARTHLY_ORG }}
-          EARTHLY_SATELLITE: ${{ vars.EARTHLY_SATELLITE }}
           DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           earthly config global.cache_size_pct 50
-          earthly "--remote-cache=${cache_image}" +deploy "--main_image=${main_image}" "--VERSION=${VERSION}"
+          earthly +deploy "--main_image=${main_image}" "--VERSION=${VERSION}"
+      - name: Build and possibly push docker image
+        uses: docker/build-push-action@v6
+        with:
+          push: "${{ github.ref == 'refs/heads/main' }}"
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${main_image}:${VERSION}
+            ${main_image}:latest
       - name: Save manifests for later deploy
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: manifests
           path: deploy.yaml
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2
-        if: always()
-        with:
-          files: |
-            xunit.xml
+#      - name: Publish Test Results
+#        uses: EnricoMi/publish-unit-test-result-action@34d7c956a59aed1bfebf31df77b8de55db9bbaaf # v2
+#        if: always()
+#        with:
+#          files: |
+#            xunit.xml
   deploy:
     name: Deploy
     if: github.ref == 'refs/heads/main'
