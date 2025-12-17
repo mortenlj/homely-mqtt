@@ -73,8 +73,8 @@ jobs:
           push: "${{ github.ref == 'refs/heads/main' }}"
           platforms: linux/amd64,linux/arm64
           tags: |
-            ${main_image}:${VERSION}
-            ${main_image}:latest
+            ${{ env.main_image }}:${{ env.VERSION }}
+            ${{ env.main_image }}:latest
       - name: Save manifests for later deploy
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
