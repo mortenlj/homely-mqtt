@@ -5,15 +5,21 @@ IMPORT github.com/mortenlj/earthly-lib/kubernetes/commands AS lib-k8s-commands
 FROM busybox
 
 deps:
-    FROM python:3.11-slim
+    FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
+    ENV UV_COMPILE_BYTECODE=1
+    ENV UV_LINK_MODE=copy
+
+    # Disable Python downloads, because we want to use the system interpreter
+    # across both images. If using a managed Python version, it needs to be
+    # copied from the build image into the final image; see `standalone.Dockerfile`
+    # for an example.
+    ENV UV_PYTHON_DOWNLOADS=0
 
     WORKDIR /app
 
-    RUN pip install poetry
-    ENV POETRY_VIRTUALENVS_IN_PROJECT=true
-
-    COPY pyproject.toml poetry.lock .
-    RUN poetry install --only main --no-root --no-interaction
+    COPY pyproject.toml uv.lock .
+    RUN --mount=type=cache,target=/root/.cache/uv \
+        uv sync --locked --no-install-project
 
     SAVE ARTIFACT .venv
     SAVE IMAGE --cache-hint
@@ -21,13 +27,17 @@ deps:
 build:
     FROM +deps
 
-    RUN poetry install --no-root --no-interaction
-
     COPY --dir .prospector.yaml ibidem tests .
-    RUN poetry install --no-interaction && \
-        poetry run black --check . && \
-        poetry run prospector && \
-        poetry run pytest --junit-xml=xunit.xml
+    RUN --mount=type=cache,target=/root/.cache/uv \
+        uv sync --locked && \
+        uv run black --check . && \
+        uv run prospector && \
+        uv run pytest --junit-xml=xunit.xml
+
+    # Omit development dependencies
+    ENV UV_NO_DEV=1
+    RUN --mount=type=cache,target=/root/.cache/uv \
+        uv sync --locked
 
     SAVE ARTIFACT ibidem
     SAVE ARTIFACT ./xunit.xml AS LOCAL xunit.xml
@@ -35,15 +45,15 @@ build:
 
 test:
     LOCALLY
-    RUN poetry install --no-interaction && \
-        poetry run black --check . && \
-        poetry run prospector && \
-        poetry run pytest
+    RUN uv sync --locked && \
+        uv run black --check . && \
+        uv run prospector && \
+        uv run pytest --junit-xml=xunit.xml
 
 black:
     LOCALLY
-    RUN poetry install --no-interaction && \
-        poetry run black .
+    RUN uv sync --locked && \
+        uv run black --check .
 
 docker:
     FROM python:3.11-slim

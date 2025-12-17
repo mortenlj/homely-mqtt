@@ -1,33 +1,40 @@
-[tool.poetry]
+[project]
 name = "homely-mqtt"
 version = "0.1.0"
 description = ""
-authors = ["Morten Lied Johansen <mortenjo@ifi.uio.no>"]
+authors = [{ name = "Morten Lied Johansen", email = "mortenjo@ifi.uio.no" }]
+requires-python = ">=3.11,<4"
 license = "MIT"
-packages = [{include = "ibidem"}]
+dependencies = [
+    "fiaas-logging>=0.1.1,<0.2",
+    "fastapi>=0.123.0,<0.124",
+    "uvicorn[standard]>=0.38.0,<0.39",
+    "requests>=2.32.3,<3",
+    "paho-mqtt>=2,<3",
+    "pydantic-settings>=2.6.0,<3",
+    "python-socketio[client]<6",
+    "pydantic>=2.9.2,<3",
+    "python-slugify>=8.0.4,<9",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-fiaas-logging = "^0.1.1"
-fastapi = "^0.123.0"
-uvicorn = { extras = ["standard"], version = "^0.38.0" }
-requests = "^2.32.3"
-paho-mqtt = "^2"
-pydantic-settings = "^2.6.0"
-python-socketio = { version = "<6", extras = ["client"] }
-pydantic = "^2.9.2"
-python-slugify = "^8.0.4"
+[dependency-groups]
+dev = [
+    "pytest==9.0.1",
+    "pytest-cov==7.0.0",
+    "pytest-sugar==1.1.1",
+    "black==25.11.0",
+    "prospector==1.17.3",
+]
 
-[tool.poetry.dev-dependencies]
-pytest = "9.0.1"
-pytest-cov = "7.0.0"
-pytest-sugar = "1.1.1"
-black = "25.11.0"
-prospector = "1.17.3"
+[tool.hatch.build.targets.sdist]
+include = ["ibidem"]
+
+[tool.hatch.build.targets.wheel]
+include = ["ibidem"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.black]
 line-length = 120
