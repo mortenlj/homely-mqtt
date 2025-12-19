@@ -35,7 +35,9 @@ class MqttManager:
             self._client.tls_set(settings.ca_certs, settings.certfile, settings.keyfile)
         self._client.enable_logger()
         self._client.loop_start()
-        self._client.connect(settings.broker_url, settings.broker_port, keepalive=KEEPALIVE_SECONDS)
+        self._client.connect(
+            settings.broker_url, settings.broker_port, keepalive=KEEPALIVE_SECONDS
+        )
         self._topic_prefix = settings.topic_prefix
         self._publish_enabled = settings.publish_enabled
         self._backoff_seconds = 1
@@ -87,4 +89,6 @@ class MqttManager:
                 mmi.wait_for_publish(timeout=timeout / 10)
             except RuntimeError as e:
                 LOG.warning(e)
-        raise MqttException("Failed to publish message after timeout: %s", mqtt.error_string(mmi.rc))
+        raise MqttException(
+            "Failed to publish message after timeout: %s", mqtt.error_string(mmi.rc)
+        )

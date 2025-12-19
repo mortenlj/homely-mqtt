@@ -58,7 +58,9 @@ class Event(BaseModel):
         return cls(
             type=data["type"],
             device_id=UUID(data["data"]["deviceId"]),
-            changes=[Measurement.model_validate(change) for change in data["data"]["changes"]],
+            changes=[
+                Measurement.model_validate(change) for change in data["data"]["changes"]
+            ],
         )
 
 
@@ -80,7 +82,10 @@ class Homely:
         sio.on("event", self._on_event)
         self._update_locations()
         self._update_devices()
-        url = SOCKET_URL + f"?locationId={self._home['locationId']}&token={self._access_token}"
+        url = (
+            SOCKET_URL
+            + f"?locationId={self._home['locationId']}&token={self._access_token}"
+        )
         sio.connect(url, headers={"Authorization": f"Bearer {self._access_token}"})
         self._state.ready = True
         while True:
@@ -103,7 +108,9 @@ class Homely:
         device = self._devices[event.device_id]
         for measurement in event.changes:
             measurement.device = device
-            LOG.info(f"Captured measurement: {measurement.device.slug}/{measurement.sensor_name}: {measurement.value}")
+            LOG.info(
+                f"Captured measurement: {measurement.device.slug}/{measurement.sensor_name}: {measurement.value}"
+            )
             self.measurement_queue.put(measurement)
 
     def _update_locations(self):
@@ -152,7 +159,9 @@ class Homely:
         self._session.auth = HomelyAuth(auth_data["access_token"])
         self._access_token = auth_data["access_token"]
         self._refresh_token = auth_data["refresh_token"]
-        self._refresh_after = datetime.datetime.now() + datetime.timedelta(seconds=auth_data["expires_in"])
+        self._refresh_after = datetime.datetime.now() + datetime.timedelta(
+            seconds=auth_data["expires_in"]
+        )
         LOG.debug(f"Access token expires at {self._refresh_after}")
 
     def _update_measurements(self, device_data, device):
@@ -165,8 +174,15 @@ class Homely:
                     continue
                 if isinstance(state_value, str):
                     continue
-                value = float(state_value) if isinstance(state_value, bool) else state_value
-                measurement = Measurement(device=device, feature=feature_name, stateName=state_name, value=value)
+                value = (
+                    float(state_value) if isinstance(state_value, bool) else state_value
+                )
+                measurement = Measurement(
+                    device=device,
+                    feature=feature_name,
+                    stateName=state_name,
+                    value=value,
+                )
                 LOG.info(
                     f"Fetched measurement: {measurement.device.slug}/{measurement.sensor_name}: {measurement.value}"
                 )

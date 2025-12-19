@@ -29,7 +29,12 @@ class TestDevice:
 
     @pytest.fixture
     def device(self, floor, room, model_name):
-        return Device(id=uuid4(), name="Test Device", location=f"{floor.input} - {room}", modelName=model_name)
+        return Device(
+            id=uuid4(),
+            name="Test Device",
+            location=f"{floor.input} - {room}",
+            modelName=model_name,
+        )
 
     def test_floor(self, device, floor):
         assert device.floor == floor.expected
@@ -52,29 +57,63 @@ class TestDevice:
             "features": {
                 "setup": {
                     "states": {
-                        "appledenable": {"value": True, "lastUpdated": "2023-07-17T14:56:40.801Z"},
-                        "errledenable": {"value": True, "lastUpdated": "2023-07-17T14:56:40.770Z"},
+                        "appledenable": {
+                            "value": True,
+                            "lastUpdated": "2023-07-17T14:56:40.801Z",
+                        },
+                        "errledenable": {
+                            "value": True,
+                            "lastUpdated": "2023-07-17T14:56:40.770Z",
+                        },
                     }
                 },
                 "alarm": {
                     "states": {
-                        "alarm": {"value": False, "lastUpdated": "2023-12-13T21:34:05.808Z"},
-                        "tamper": {"value": False, "lastUpdated": "2022-11-17T12:01:45.308Z"},
+                        "alarm": {
+                            "value": False,
+                            "lastUpdated": "2023-12-13T21:34:05.808Z",
+                        },
+                        "tamper": {
+                            "value": False,
+                            "lastUpdated": "2022-11-17T12:01:45.308Z",
+                        },
                         "sensitivitylevel": {"value": None, "lastUpdated": None},
                     }
                 },
-                "temperature": {"states": {"temperature": {"value": 18.3, "lastUpdated": "2023-12-14T10:59:16.956Z"}}},
+                "temperature": {
+                    "states": {
+                        "temperature": {
+                            "value": 18.3,
+                            "lastUpdated": "2023-12-14T10:59:16.956Z",
+                        }
+                    }
+                },
                 "battery": {
                     "states": {
-                        "low": {"value": False, "lastUpdated": "2021-07-07T19:18:41.005Z"},
-                        "defect": {"value": False, "lastUpdated": "2021-07-07T19:18:41.014Z"},
-                        "voltage": {"value": 2.7, "lastUpdated": "2023-12-14T06:51:08.188Z"},
+                        "low": {
+                            "value": False,
+                            "lastUpdated": "2021-07-07T19:18:41.005Z",
+                        },
+                        "defect": {
+                            "value": False,
+                            "lastUpdated": "2021-07-07T19:18:41.014Z",
+                        },
+                        "voltage": {
+                            "value": 2.7,
+                            "lastUpdated": "2023-12-14T06:51:08.188Z",
+                        },
                     }
                 },
                 "diagnostic": {
                     "states": {
-                        "networklinkstrength": {"value": 89, "lastUpdated": "2023-12-14T10:29:48.421Z"},
-                        "networklinkaddress": {"value": "0015BC002C1016B1", "lastUpdated": "2023-11-17T17:02:08.307Z"},
+                        "networklinkstrength": {
+                            "value": 89,
+                            "lastUpdated": "2023-12-14T10:29:48.421Z",
+                        },
+                        "networklinkaddress": {
+                            "value": "0015BC002C1016B1",
+                            "lastUpdated": "2023-11-17T17:02:08.307Z",
+                        },
                     }
                 },
             },
