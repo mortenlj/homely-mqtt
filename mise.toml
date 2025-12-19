@@ -1,0 +1,42 @@
+[tools]
+python = "3.11"
+uv = "latest"
+
+[tasks.test]
+depends = ["python:test"]
+description = "Run tests"
+
+[tasks.fmt]
+depends = ["python:fmt"]
+description = "Format source"
+
+[tasks.fmt-check]
+depends = ["python:fmt-check"]
+description = "Check formatting"
+
+[tasks.lint]
+depends = ["python:lint"]
+description = "Lint the project"
+
+[tasks.lint-fix]
+depends = ["python:lint-fix"]
+description = "Run lint fixers"
+
+[tasks.ci]
+depends = ["test", "fmt-check", "lint"]
+description = "Run CI tasks"
+
+[tasks.build]
+depends = ["python:build"]
+description = "Build the project in debug mode"
+sources = ["homely-mqtt/**/*.py", "src/**/*.py", "uv.lock", "pyproject.toml"]
+outputs = ["dist/homely-mqtt-*.tar.gz", "dist/homely-mqtt-*.whl"]
+
+[tasks.release-build]
+depends = ["python:release-build"]
+description = "Build the project"
+sources = ["homely-mqtt/**/*.py", "src/**/*.py", "uv.lock", "pyproject.toml"]
+outputs = ["dist/homely-mqtt-*.tar.gz", "dist/homely-mqtt-*.whl"]
+
+[task_config]
+includes = [".config/mise-lib/virtual_tasks.toml", ".config/mise-lib"]
