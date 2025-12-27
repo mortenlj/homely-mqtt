@@ -8,6 +8,9 @@ on:
   push:
   workflow_dispatch:
 
+env:
+  main_image: ghcr.io/${{ github.repository }}
+
 jobs:
   setup:
     name: Set variables
@@ -35,6 +38,7 @@ jobs:
     env:
       VERSION: "${{ needs.setup.outputs.VERSION }}"
     steps:
+      - uses: jdx/mise-action@d16887ba50704baed7de72bd1e82e04391e4457a # v3
       - name: Set up QEMU
         id: qemu
         uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
@@ -53,10 +57,6 @@ jobs:
         with:
           fetch-depth: 0
           submodules: "true"
-      - uses: jdx/mise-action@d16887ba50704baed7de72bd1e82e04391e4457a # v3
-      - run: mise run k8s:manifests deploy/
-        env:
-          MORTENLJ_MISE_LIB_VERSION: ${{ env.VERSION }}
       - name: Build and possibly push docker image
         uses: docker/build-push-action@v6
         with:
@@ -65,6 +65,10 @@ jobs:
           tags: |
             ${{ env.main_image }}:${{ env.VERSION }}
             ${{ env.main_image }}:latest
+      - name: Assemble manifests
+        run: mise run k8s:manifests deploy/ "${{ env.main_image }}"
+        env:
+          MORTENLJ_MISE_LIB_VERSION: ${{ env.VERSION }}
       - name: Save manifests for later deploy
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
