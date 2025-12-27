@@ -8,14 +8,6 @@ on:
   push:
   workflow_dispatch:
 
-env:
-  main_image: ghcr.io/${{ github.repository }}
-  EARTHLY_USE_INLINE_CACHE: true
-  EARTHLY_SAVE_INLINE_CACHE: true
-  EARTHLY_VERBOSE: true
-  EARTHLY_FULL_TARGET: true
-  EARTHLY_OUTPUT: true
-
 jobs:
   setup:
     name: Set variables
@@ -61,18 +53,10 @@ jobs:
         with:
           fetch-depth: 0
           submodules: "true"
-      - name: Install earthly
-        uses: earthly/actions-setup@43211c7a0eae5344d6d79fb4aaf209c8f8866203 # ratchet:earthly/actions-setup@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          use-cache: true
-      - name: Build manifests
+      - uses: jdx/mise-action@d16887ba50704baed7de72bd1e82e04391e4457a # v3
+      - run: mise run k8s:manifests deploy/
         env:
-          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        run: |
-          earthly config global.cache_size_pct 50
-          earthly +deploy "--main_image=${main_image}" "--VERSION=${VERSION}"
+          MORTENLJ_MISE_LIB_VERSION: ${{ env.VERSION }}
       - name: Build and possibly push docker image
         uses: docker/build-push-action@v6
         with:
