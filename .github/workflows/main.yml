@@ -67,7 +67,7 @@ jobs:
             ${{ env.main_image }}:${{ env.VERSION }}
             ${{ env.main_image }}:latest
       - name: Assemble manifests
-        run: mise run k8s:manifests deploy/ "${{ env.main_image }}"
+        run: mise run k8s:manifests "${{ env.main_image }}"
         env:
           MORTENLJ_MISE_LIB_VERSION: ${{ env.VERSION }}
       - name: Save manifests for later deploy
