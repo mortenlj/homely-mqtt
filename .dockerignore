@@ -41,4 +41,3 @@ __pycache__
 /certs/
 /xunit.xml
 /.env
-.config
