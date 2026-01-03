@@ -7,7 +7,7 @@ requires-python = "==3.11.*"
 license = "MIT"
 dependencies = [
     "fiaas-logging>=0.1.1,<0.2",
-    "fastapi>=0.125,<0.126",
+    "fastapi>=0.126,<0.127",
     "uvicorn[standard]>=0.38.0,<0.39",
     "requests>=2.32.3,<3",
     "paho-mqtt>=2,<3",
