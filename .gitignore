@@ -42,3 +42,4 @@ __pycache__
 /xunit.xml
 /.env
 /docs
+/mise-output/
