@@ -31,13 +31,13 @@ description = "Run CI tasks"
 depends = ["python:build"]
 description = "Build the project in debug mode"
 sources = ["homely-mqtt/**/*.py", "src/**/*.py", "uv.lock", "pyproject.toml"]
-outputs = ["dist/homely-mqtt-*.tar.gz", "dist/homely-mqtt-*.whl"]
+outputs = ["dist/homely_mqtt-*.tar.gz", "dist/homely_mqtt-*.whl"]
 
 [tasks.release-build]
 depends = ["python:release-build"]
 description = "Build the project"
 sources = ["homely-mqtt/**/*.py", "src/**/*.py", "uv.lock", "pyproject.toml"]
-outputs = ["dist/homely-mqtt-*.tar.gz", "dist/homely-mqtt-*.whl"]
+outputs = ["dist/homely_mqtt-*.tar.gz", "dist/homely_mqtt-*.whl"]
 
 [task_config]
 includes = [".config/mise-lib/virtual_tasks.toml", ".config/mise-lib"]
