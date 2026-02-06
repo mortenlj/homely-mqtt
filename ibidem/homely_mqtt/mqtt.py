@@ -29,6 +29,7 @@ class MqttException(Exception):
 class MqttManager:
     def __init__(self, settings: MqttSettings, measurement_queue: Queue):
         self.measurement_queue = measurement_queue
+        self._published = []
         self._state = None
         self._client = mqtt.Client(client_id=make_client_id(), protocol=mqtt.MQTTv5)
         if settings.ca_certs:
@@ -53,6 +54,7 @@ class MqttManager:
                 counter += 1
                 self._backoff_seconds = 1
                 if counter % 100 == 0:
+                    self._ensure_sent()
                     LOG.info("Published %d measurements", counter)
             except Exception as e:
                 LOG.exception(e)
@@ -75,9 +77,18 @@ class MqttManager:
                 self.mmi_wait_for_publish(mmi)
             elif mmi.rc == mqtt.MQTT_ERR_QUEUE_SIZE:
                 raise MqttException("MQTT output queue full")
-            LOG.debug("Published measurement on topic %s: %r", topic, value)
+            elif mmi.rc == mqtt.MQTT_ERR_SUCCESS:
+                LOG.debug("Published measurement on topic %s: %r", topic, value)
+            else:
+                LOG.debug("Measurement not yet published")
+                self._published.append(mmi)
         else:
             LOG.debug("Skipping publish of measurement on topic %s: %r", topic, value)
+
+    def _ensure_sent(self):
+        while self._published:
+            mmi = self._published.pop()
+            self.mmi_wait_for_publish(mmi)
 
     @staticmethod
     def mmi_wait_for_publish(mmi, timeout=PUBLISH_TIMEOUT_SECONDS):
