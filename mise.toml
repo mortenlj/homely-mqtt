@@ -1,5 +1,13 @@
+[task_config]
+includes = [".config/mise-lib/virtual_tasks.toml", ".config/mise-lib"]
+
+[env]
+VERSION = "${MORTENLJ_MISE_LIB_CLEAN_VERSION:-0.1.0+develop}"
+
+[settings]
+env_shell_expand = true
+
 [tools]
-"pipx:jinja2-cli" = "latest"
 python = "3.11"
 uv = "latest"
 
@@ -30,14 +38,12 @@ description = "Run CI tasks"
 [tasks.build]
 depends = ["python:build"]
 description = "Build the project in debug mode"
-sources = ["homely-mqtt/**/*.py", "src/**/*.py", "uv.lock", "pyproject.toml"]
+sources = ["homely_mqtt/**/*.py", "ibidem/**/*.py", "src/**/*.py", "uv.lock", "pyproject.toml"]
 outputs = ["dist/homely_mqtt-*.tar.gz", "dist/homely_mqtt-*.whl"]
 
 [tasks.release-build]
 depends = ["python:release-build"]
 description = "Build the project"
-sources = ["homely-mqtt/**/*.py", "src/**/*.py", "uv.lock", "pyproject.toml"]
+sources = ["homely_mqtt/**/*.py", "ibidem/**/*.py", "src/**/*.py", "uv.lock", "pyproject.toml"]
 outputs = ["dist/homely_mqtt-*.tar.gz", "dist/homely_mqtt-*.whl"]
 
-[task_config]
-includes = [".config/mise-lib/virtual_tasks.toml", ".config/mise-lib"]
