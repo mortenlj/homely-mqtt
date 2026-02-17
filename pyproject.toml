@@ -23,7 +23,7 @@ dev = [
     "pytest-cov==7.0.0",
     "pytest-sugar==1.1.1",
     "black==26.1.0",
-    "prospector==1.17.3",
+    "prospector==1.18.0",
 ]
 
 [tool.hatch.build.targets.sdist]
