@@ -3,7 +3,7 @@ name = "homely-mqtt"
 version = "0.1.0"
 description = ""
 authors = [{ name = "Morten Lied Johansen", email = "mortenjo@ifi.uio.no" }]
-requires-python = "==3.11.*"
+requires-python = "==3.14.*"
 license = "MIT"
 dependencies = [
     "fiaas-logging>=0.1.1,<0.2",
