@@ -1,6 +1,5 @@
 [project]
 name = "homely-mqtt"
-version = "0.1.0"
 description = ""
 authors = [{ name = "Morten Lied Johansen", email = "mortenjo@ifi.uio.no" }]
 requires-python = "==3.11.*"
@@ -15,6 +14,9 @@ dependencies = [
     "python-socketio[client]<6",
     "pydantic>=2.9.2,<3",
     "python-slugify>=8.0.4,<9",
+]
+dynamic = [
+    "version",
 ]
 
 [dependency-groups]
@@ -33,8 +35,11 @@ include = ["ibidem"]
 include = ["ibidem"]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
 
 [tool.black]
 line-length = 120

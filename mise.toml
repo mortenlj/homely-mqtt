@@ -1,9 +1,6 @@
 [task_config]
 includes = [".config/mise-lib/virtual_tasks.toml", ".config/mise-lib"]
 
-[env]
-VERSION = "${MORTENLJ_MISE_LIB_CLEAN_VERSION:-0.1.0+develop}"
-
 [settings]
 env_shell_expand = true
 
