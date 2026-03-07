@@ -24,7 +24,6 @@ dev = [
     "pytest==9.0.2",
     "pytest-cov==7.0.0",
     "pytest-sugar==1.1.1",
-    "black==26.1.0",
     "prospector==1.18.0",
 ]
 
@@ -41,6 +40,5 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 source = "uv-dynamic-versioning"
 
-[tool.black]
+[tool.ruff]
 line-length = 120
-target-version = ["py311"]
