@@ -2,7 +2,7 @@
 name = "homely-mqtt"
 description = ""
 authors = [{ name = "Morten Lied Johansen", email = "mortenjo@ifi.uio.no" }]
-requires-python = "==3.11.*"
+requires-python = "==3.14.*"
 license = "MIT"
 dependencies = [
     "fiaas-logging>=0.1.1,<0.2",
@@ -10,9 +10,9 @@ dependencies = [
     "uvicorn[standard]>=0.41,<0.42",
     "requests>=2.32.3,<3",
     "paho-mqtt>=2,<3",
-    "pydantic-settings>=2.6.0,<3",
+    "pydantic-settings>=2.12,<3",
     "python-socketio[client]<6",
-    "pydantic>=2.9.2,<3",
+    "pydantic>=2.12,<3",
     "python-slugify>=8.0.4,<9",
 ]
 dynamic = [
@@ -24,7 +24,6 @@ dev = [
     "pytest==9.0.2",
     "pytest-cov==7.0.0",
     "pytest-sugar==1.1.1",
-    "prospector==1.18.0",
 ]
 
 [tool.hatch.build.targets.sdist]

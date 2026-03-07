@@ -5,7 +5,7 @@ includes = [".config/mise-lib/virtual_tasks.toml", ".config/mise-lib"]
 env_shell_expand = true
 
 [tools]
-python = "3.11"
+python = "3.14"
 uv = "latest"
 
 [tasks.test]
